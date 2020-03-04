@@ -2,10 +2,10 @@ package com.robot.server;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
+import org.springframework.web.socket.config.annotation.EnableWebSocket;
 
 @SpringBootApplication
-@EnableWebSocketMessageBroker
+@EnableWebSocket
 public class Application {
 
     public static void main(String[] args) {
