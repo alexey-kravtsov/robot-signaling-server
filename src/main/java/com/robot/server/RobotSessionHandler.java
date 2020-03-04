@@ -1,5 +1,6 @@
 package com.robot.server;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,9 +10,9 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.AbstractWebSocketHandler;
 
+@Slf4j
 @Component
 public class RobotSessionHandler extends AbstractWebSocketHandler {
-    private final Logger logger = LogManager.getLogger(RobotSessionHandler.class);
 
     private final SessionsController sessionsController;
 
@@ -29,8 +30,8 @@ public class RobotSessionHandler extends AbstractWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        logger.info("Message time: " + System.currentTimeMillis());
-        logger.info("Signaling received from operator: " + message.getPayload());
+        log.info("Message time: " + System.currentTimeMillis());
+        log.info("Signaling received from operator: " + message.getPayload());
 
         WebSocketSession operatorSession = sessionsController.getOperatorSession();
         if (operatorSession == null) {
