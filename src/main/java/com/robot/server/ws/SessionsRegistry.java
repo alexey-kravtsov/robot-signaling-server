@@ -1,4 +1,4 @@
-package com.robot.server;
+package com.robot.server.ws;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -8,8 +8,8 @@ import org.springframework.web.socket.WebSocketSession;
 import java.io.IOException;
 
 @Component
-public class SessionsController {
-    private Logger logger =  LogManager.getLogger(SessionsController.class);
+public class SessionsRegistry {
+    private Logger logger =  LogManager.getLogger(SessionsRegistry.class);
 
     private WebSocketSession operatorSession;
     private WebSocketSession robotSession;
