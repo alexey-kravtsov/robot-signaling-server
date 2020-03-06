@@ -1,4 +1,4 @@
-package com.robot.server;
+package com.robot.server.ws;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,16 +12,16 @@ import org.springframework.web.socket.handler.AbstractWebSocketHandler;
 @Component
 public class OperatorSessionHandler extends AbstractWebSocketHandler {
 
-    private final SessionsController sessionsController;
+    private final SessionsRegistry sessionsRegistry;
 
     @Autowired
-    public OperatorSessionHandler(SessionsController sessionsController) {
-        this.sessionsController = sessionsController;
+    public OperatorSessionHandler(SessionsRegistry sessionsRegistry) {
+        this.sessionsRegistry = sessionsRegistry;
     }
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        if (!sessionsController.tryOpenOperatorSession(session)) {
+        if (!sessionsRegistry.tryOpenOperatorSession(session)) {
             session.close(new CloseStatus(2001, "Client limit exceeded"));
         }
     }
@@ -29,9 +29,9 @@ public class OperatorSessionHandler extends AbstractWebSocketHandler {
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         log.info("Message time: " + System.currentTimeMillis());
-        log.info("Signaling received from robot: " + message.getPayload());
+        log.info("Signaling received from operator: " + message.getPayload());
 
-        WebSocketSession robotSession = sessionsController.getRobotSession();
+        WebSocketSession robotSession = sessionsRegistry.getRobotSession();
         if (robotSession == null) {
             session.sendMessage(new TextMessage("error"));
             return;
@@ -42,11 +42,11 @@ public class OperatorSessionHandler extends AbstractWebSocketHandler {
 
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
-        sessionsController.closeOperatorSession();
+        sessionsRegistry.closeOperatorSession();
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        sessionsController.closeOperatorSession();
+        sessionsRegistry.closeOperatorSession();
     }
 }
