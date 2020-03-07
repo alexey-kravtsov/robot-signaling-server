@@ -33,7 +33,7 @@ public class OperatorSessionHandler extends AbstractWebSocketHandler {
 
         WebSocketSession robotSession = sessionsRegistry.getRobotSession();
         if (robotSession == null) {
-            session.sendMessage(new TextMessage("error"));
+            session.sendMessage(new TextMessage("{\"type\": \"error\", \"data\": \"No robot connection\"}"));
             return;
         }
 
@@ -41,12 +41,12 @@ public class OperatorSessionHandler extends AbstractWebSocketHandler {
     }
 
     @Override
-    public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
+    public void handleTransportError(WebSocketSession session, Throwable exception) {
         sessionsRegistry.closeOperatorSession();
     }
 
     @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         sessionsRegistry.closeOperatorSession();
     }
 }
