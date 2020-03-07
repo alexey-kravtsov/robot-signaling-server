@@ -4,12 +4,10 @@ function start() {
     socket = new WebSocket("ws://localhost:8080/signaling/operator");
 
     socket.onopen = function(e) {
-        socket.send("Hi from operator!");
+        sendSignalingMessage("sdp", "hello");
     };
 
-    socket.onmessage = function(event) {
-        alert(event.data);
-    };
+    socket.onmessage = handleSignalingMessage;
 
     socket.onerror = function(error) {
         alert(`[error] ${error.message}`);
@@ -22,4 +20,27 @@ function stop() {
     }
 
     socket.close();
+    socket = null;
+}
+
+function sendSignalingMessage(type, data) {
+    socket.send(JSON.stringify({type: type, message: data}));
+}
+
+function handleSignalingMessage(event) {
+    if (event == null || event.data == null) {
+        return;
+    }
+
+    const message = JSON.parse(event.data);
+
+    switch (message.type) {
+        case "error": {
+            alert(message.data);
+            break;
+        }
+        default: {
+            alert("Incorrect signaling message format")
+        }
+    }
 }
