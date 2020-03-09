@@ -1,10 +1,14 @@
 let socket;
 let pc;
+let movementController;
+
+setupKeyListener();
 
 function start() {
-    socket = new WebSocket("ws://localhost:8080/signaling/operator");
+    socket = new WebSocket("ws://" + location.host + "/signaling/operator");
+    movementController = new MovementController();
 
-    socket.onopen = async function(e) {
+    socket.onopen = async () => {
         pc = new RTCPeerConnection({
             iceServers: [
                 {
@@ -33,9 +37,7 @@ function start() {
         };
 
         const channel = pc.createDataChannel("commands");
-        channel.onopen = () => {
-            channel.send('Hi from operator');
-        };
+        movementController.setDataChannel(channel);
 
         const offer = await pc.createOffer();
         await pc.setLocalDescription(offer);
@@ -88,4 +90,17 @@ async function handleSignalingMessage(event) {
             alert("Incorrect signaling message format")
         }
     }
+}
+
+function setupKeyListener() {
+    document.addEventListener('keydown', handleKeyPress);
+    document.addEventListener('keyup', handleKeyRelease);
+}
+
+function handleKeyPress(event) {
+    movementController.keyPress(event.code);
+}
+
+function handleKeyRelease(event) {
+    movementController.keyRelease(event.code);
 }
