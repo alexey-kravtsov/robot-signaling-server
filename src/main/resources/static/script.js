@@ -1,5 +1,6 @@
 let socket;
 let pc;
+let iceCandidates;
 let movementController;
 
 setupKeyListener();
@@ -7,6 +8,7 @@ setupKeyListener();
 function start() {
     socket = new WebSocket("ws://" + location.host + "/signaling/operator");
     movementController = new MovementController();
+    iceCandidates = [];
 
     socket.onopen = async () => {
         pc = new RTCPeerConnection({
@@ -79,6 +81,18 @@ async function handleSignalingMessage(event) {
         }
         case "ice": {
             const candidate = JSON.parse(message.data);
+
+            if (pc.remoteDescription == null) {
+                iceCandidates.push(candidate);
+                break;
+            }
+
+            for (const queuedCandidate of iceCandidates) {
+                await pc.addIceCandidate(queuedCandidate);
+            }
+
+            iceCandidates = [];
+
             await pc.addIceCandidate(candidate);
             break;
         }
