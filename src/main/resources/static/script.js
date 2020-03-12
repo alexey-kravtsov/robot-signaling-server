@@ -1,5 +1,6 @@
 let socket;
 let pc;
+let datachannel;
 let iceCandidates;
 let movementController;
 
@@ -13,13 +14,12 @@ function start() {
     socket.onopen = async () => {
         pc = new RTCPeerConnection({
             iceServers: [
-                {
-                    urls: 'stun:stun.l.google.com:19302'
-                }
+                {urls: 'stun:stun.l.google.com:19302'}
             ]
         });
 
         pc.addTransceiver('video', {'direction': 'recvonly'});
+        pc.addTransceiver('audio', {'direction': 'inactive'});
 
         pc.onicecandidate = event => {
             if (event.candidate === null) {
@@ -38,10 +38,10 @@ function start() {
             }
         };
 
-        const channel = pc.createDataChannel("commands");
-        movementController.setDataChannel(channel);
+        datachannel = pc.createDataChannel("commands");
+        movementController.setDataChannel(datachannel);
 
-        const offer = await pc.createOffer();
+        const offer = await pc.createOffer({offerToReceiveAudio: false, offerToReceiveVideo: true});
         await pc.setLocalDescription(offer);
         sendSignalingMessage("sdp", JSON.stringify(offer));
     };
@@ -60,6 +60,10 @@ function stop() {
 
     socket.close();
     socket = null;
+}
+
+function command() {
+    datachannel.send("hello");
 }
 
 function sendSignalingMessage(type, data) {
