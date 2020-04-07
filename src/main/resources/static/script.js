@@ -16,16 +16,7 @@ function start(startBtn) {
     socket.onopen = async () => {
         pc = new RTCPeerConnection({
             iceServers: [
-                {urls: 'stun:stun.l.google.com:19302'},
-                {urls: 'stun:stun.ekiga.net'},
-                {urls: 'stun:stun.ideasip.com'},
-                {urls: 'stun:stun.stunprotocol.org:3478'},
-                {urls: 'stun:stun.voiparound.com'},
-                {
-                    urls:           'turn:numb.viagenie.ca',
-                    username:       "webrtc@live.com",
-                    credential:     "muazkh",
-                },
+                {urls: 'stun:stun.l.google.com:19302'}
             ]
         });
 
