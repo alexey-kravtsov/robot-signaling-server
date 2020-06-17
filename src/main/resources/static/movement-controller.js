@@ -1,10 +1,10 @@
 class MovementController {
 
     //scp|fbn|lrn|1
-    _allowedKeys = ["KeyW", "KeyA", "KeyS", "KeyD", "Space"];
+    _allowedKeys = ["KeyW", "ArrowUp", "KeyA", "ArrowLeft", "KeyS", "ArrowDown", "KeyD", "ArrowRight", "Space"];
 
     constructor() {
-        this._keysHold = [];
+        this._directionsHold = [];
         this._timer = null;
     }
 
@@ -17,25 +17,27 @@ class MovementController {
             return;
         }
 
-        if (keyCode === "Space") {
+        let direction = this._mapDirection(keyCode);
+
+        if (direction === "stop") {
             clearInterval(this._timer);
             this._timer = null;
-            this._keysHold = [];
+            this._directionsHold = [];
             this._datachannel.send("mp");
             return;
         }
 
-        const keysHold = this._keysHold;
+        const directionsHold = this._directionsHold;
 
         let movementType;
-        if (keysHold.length === 0) {
+        if (directionsHold.length === 0) {
             movementType = "s";
         } else {
             movementType = "c";
         }
 
-        if (!keysHold.includes(keyCode)) {
-            keysHold.push(keyCode);
+        if (!directionsHold.includes(direction)) {
+            directionsHold.push(direction);
         }
 
         if (this._timer != null) {
@@ -52,21 +54,22 @@ class MovementController {
             return;
         }
 
-        if (keyCode === "Space" || this._timer == null) {
+        let direction = this._mapDirection(keyCode);
+
+        if (direction === "stop" || this._timer == null) {
             return;
         }
 
-        const keysHold = this._keysHold;
-        const index = keysHold.indexOf(keyCode);
+        const directionsHold = this._directionsHold;
+        const index = directionsHold.indexOf(direction);
         if (index > -1) {
-            keysHold.splice(index, 1);
+            directionsHold.splice(index, 1);
         }
 
-        if (keysHold.length === 0) {
+        if (directionsHold.length === 0) {
             clearInterval(this._timer);
             this._timer = null;
             this._datachannel.send("mp");
-            return;
         }
     }
 
@@ -82,26 +85,48 @@ class MovementController {
         return true;
     }
 
-    _generateMovement() {
-        const keysHold = this._keysHold;
+    _mapDirection(keyCode) {
+        if (keyCode === "KeyW" || keyCode === "ArrowUp") {
+            return "forward";
+        }
 
-        if (keysHold.length === 0) {
+        if (keyCode === "KeyA" || keyCode === "ArrowLeft") {
+            return "left";
+        }
+
+        if (keyCode === "KeyS" || keyCode === "ArrowDown") {
+            return "backward";
+        }
+
+        if (keyCode === "KeyD" || keyCode === "ArrowRight") {
+            return "right";
+        }
+
+        if (keyCode === "Space") {
+            return "stop";
+        }
+    }
+
+    _generateMovement() {
+        const directionsHold = this._directionsHold;
+
+        if (directionsHold.length === 0) {
             return null;
         }
 
         let direction;
-        if (keysHold.includes("KeyW")) {
+        if (directionsHold.includes("forward")) {
             direction = "f";
-        } else if (keysHold.includes("KeyS")) {
+        } else if (directionsHold.includes("backward")) {
             direction = "b";
         } else {
             direction = "n";
         }
 
         let rotation ;
-        if (keysHold.includes("KeyA")) {
+        if (directionsHold.includes("left")) {
             rotation = "l";
-        } else if (keysHold.includes("KeyD")) {
+        } else if (directionsHold.includes("right")) {
             rotation = "r";
         } else {
             rotation = "n";
@@ -113,7 +138,7 @@ class MovementController {
     }
 
     _sendMovementPing() {
-        if (this._keysHold.length === 0) {
+        if (this._directionsHold.length === 0) {
             clearInterval(this._timer);
             this._timer = null;
             return;
