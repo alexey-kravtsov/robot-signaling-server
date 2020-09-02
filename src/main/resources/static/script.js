@@ -8,8 +8,9 @@ setupKeyListener();
 
 function start(startBtn) {
     startBtn.disabled = true;
-    startBtn.value='Connecting...';
-    socket = new WebSocket("ws://" + location.host + "/signaling/operator");
+    startBtn.value = 'Connecting...';
+    const protocol = location.protocol === 'https:' ? "wss:" : "ws:";
+    socket = new WebSocket(`${protocol}//${location.host}/signaling/operator`);
     movementController = new MovementController();
     iceCandidates = [];
 
