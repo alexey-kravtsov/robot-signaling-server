@@ -3,17 +3,21 @@ let pc;
 let datachannel;
 let iceCandidates;
 let movementController;
+let timer;
 
 setupKeyListener();
 
 function start(startBtn) {
     startBtn.disabled = true;
-    startBtn.value='Connecting...';
-    socket = new WebSocket("ws://" + location.host + "/signaling/operator");
+    startBtn.value = 'Connecting...';
+    const protocol = location.protocol === 'https:' ? "wss:" : "ws:";
+    socket = new WebSocket(`${protocol}//${location.host}/signaling/operator`);
     movementController = new MovementController();
     iceCandidates = [];
 
     socket.onopen = async () => {
+        timer = setInterval(() => socket.send("PING"), 10000);
+
         pc = new RTCPeerConnection({
             iceServers: [
                 {urls: 'stun:stun.l.google.com:19302'}
