@@ -60,6 +60,11 @@ function start(startBtn) {
 }
 
 function stop() {
+    if (timer !== null) {
+        clearInterval(timer);
+        timer = null;
+    }
+
     if (socket == null) {
         return;
     }
