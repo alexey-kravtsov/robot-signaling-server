@@ -28,8 +28,11 @@ public class OperatorSessionHandler extends AbstractWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        log.info("Message time: " + System.currentTimeMillis());
-        log.info("Signaling received from operator: " + message.getPayload());
+        if ("PING".equals(message.getPayload())) {
+            return;
+        }
+
+        log.info("Signaling received from operator " + System.currentTimeMillis());
 
         WebSocketSession robotSession = sessionsRegistry.getRobotSession();
         if (robotSession == null) {
